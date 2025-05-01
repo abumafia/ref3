@@ -7,9 +7,24 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import CommandStart, Command
 from aiogram.utils.markdown import hbold
 from aiogram.client.default import DefaultBotProperties
+from fastapi import FastAPI, Request
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler
+
+from starlette.responses import Response
+import uvicorn
 
 API_TOKEN = "7624885474:AAHj1FolBwjGBN3xLlSf7JECxoLLAyChRYk"
 ADMIN_ID = 6606638731
+
+app = FastAPI()
+
+@app.get("/")
+async def home():
+    return {"message": "Bot ishlayapti!"}
+
+@app.post("/webhook")
+async def webhook(req: Request):
+    return await dp.feed_webhook_update(bot=bot, update=await req.json())
 
 CHANNELS = [
     {"id": "@Yaqinlarimga_tabriklar02", "name": "Yaqinlarimga tabriklarim guruhi"},
@@ -215,7 +230,11 @@ async def broadcast_cmd(msg: Message):
 
 # === Run bot ===
 async def main():
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    webhook_url = "https://ref3-xlii.onrender.com/webhook"  # bu render domeningiz
+    await bot.set_webhook(webhook_url)
+    await dp.start_webhook(
+        webhook_path="/webhook",
+        on_startup=None,
+        on_shutdown=None,
+        bot=bot
+    )
