@@ -238,3 +238,10 @@ async def main():
         on_shutdown=None,
         bot=bot
     )
+
+if __name__ == "__main__":
+    import nest_asyncio
+    nest_asyncio.apply()
+    loop = asyncio.get_event_loop()
+    loop.create_task(main())
+    uvicorn.run(app, host="0.0.0.0", port=8000)
